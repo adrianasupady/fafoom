@@ -105,7 +105,7 @@ class AimsObject():
    
         with open('geometry.out', 'r') as f:
             self.aims_string_opt = f.read()
-        f.closed
+        f.close()
         
     def get_energy(self):
         '''  get_energy() -> energy
