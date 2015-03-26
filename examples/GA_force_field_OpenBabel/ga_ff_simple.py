@@ -119,7 +119,7 @@ while (iteration < max_iter):
 		child1, child2 = Structure(parent1), Structure(parent2)
 		print_output("No crossover was performed. Children are copies of parents: "+str(child1)+(": ")+str(child1)+(", ")+str(child2)+(": ")+str(child2))
 		for child in child1, child2:
-			for attr in "initial_xyz_string", "energy", "initial_values_cistrans", "initial_values_tor":
+			for attr in "initial_sdf_string", "energy", "initial_values_cistrans", "initial_values_tor":
 				delattr(child, attr)
 	try:
 		mutate_and_relax(child1, "child1", prob_for_mut_torsions, prob_for_mut_cistrans,max_mutations_torsions, max_mutations_cistrans, iteration,cnt_max)
