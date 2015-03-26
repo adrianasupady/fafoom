@@ -44,4 +44,3 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 
 Copyright 2015 Adriana Supady 
-adriana.supady@gmail.com
