@@ -450,4 +450,3 @@ and the number of torsions.")
             mut_list = mutation_cistrans(self.values_cistrans,
                                          max_mutations_cistrans)
             self.generate_structure_from_values(mut_list, self.values_tor)
-
