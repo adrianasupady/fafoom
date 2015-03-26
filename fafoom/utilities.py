@@ -32,6 +32,7 @@ def backup(filename, obj):
                 outf.write("%s\n" % repr(obj[i]))
         else:
             outf.write("%s\n" % repr(obj))
+    outf.close()
 
 
 def boolean(string):
