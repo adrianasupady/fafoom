@@ -40,6 +40,7 @@ class FFObject():
         """
         with open(parameter_file) as fin:
             parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
+        fin.close()
         if 'force_field' not in parameter_dict:
             raise KeyError("The force field is not defined.")
         self.force_field = parameter_dict['force_field']

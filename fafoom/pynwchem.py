@@ -38,6 +38,7 @@ class NWChemObject():
         """
         with open(parameter_file) as fin:
             parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
+        fin.close()
         for key in ['functional', 'basis_set']:
             if key not in parameter_dict:
                 raise KeyError("The functional or basis_set is not defined.")

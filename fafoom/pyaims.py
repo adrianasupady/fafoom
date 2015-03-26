@@ -36,6 +36,7 @@ class AimsObject():
         """
         with open(parameter_file) as fin:
             parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
+        fin.close()
         if 'sourcedir' not in parameter_dict:
             raise KeyError("The source directory is not defined.")
         self.sourcedir = parameter_dict['sourcedir']
