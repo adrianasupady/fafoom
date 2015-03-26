@@ -1,0 +1,38 @@
+###### Molecule ######
+
+smile CC(=O)N[C@H](C(=O)NC)C
+custom True
+smart_torsion [C,N,O]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[C,N,O]
+smart_cistrans C~[$(C=O)]-[$(NC)]~[C]
+smart_custom C~[$(C=O)]-[$(NC)]~[C]
+rmsd_type cartesian
+distance_cutoff_1 1.55
+distance_cutoff_2 2.15
+rmsd_cutoff_uniq 0.1
+chiral True
+
+##### GA settings ####
+
+energy_var 0.001
+selection roulette_wheel
+fitness_sum_limit 1.2
+popsize 5
+prob_for_crossing 0.95 
+prob_for_mut_cistrans 0.4
+prob_for_mut_torsions 0.8 
+max_mutations_cistrans 1
+max_mutations_torsions 2 
+cistrans1 0
+cistrans2 180
+
+#####Run settings#####
+
+force_field mmff94 
+steps 1000
+force_tol 1e-04
+energy_tol 1e-06
+max_iter 200
+iter_limit_conv 50
+energy_diff_conv 0.001 
+energy_wanted -10000000.00
+black_dir blacklist
