@@ -27,9 +27,10 @@ cistrans2 180
 
 #####Run settings#####
 
-force_field mmff94
-steps 3000
-threshold 1e-08
+force_field mmff94 
+steps 1000
+force_tol 1e-04
+energy_tol 1e-06
 max_iter 200
 iter_limit_conv 50
 energy_diff_conv 0.001 
