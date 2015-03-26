@@ -1,5 +1,4 @@
 #    Copyright 2015 Adriana Supady
-#    adriana.supady@gmail.com
 #
 #    This file is part of fafoom.
 #
