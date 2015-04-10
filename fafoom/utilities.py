@@ -183,8 +183,8 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
     dist = np.zeros((atoms, atoms))
     for x in range(atoms):
         for y in xrange(x, atoms):
-            a = np.array(coordinates[float(x)])
-            b = np.array(coordinates[float(y)])
+            a = np.array(coordinates[int(x)])
+            b = np.array(coordinates[int(y)])
             dist[x][y] = distance(a, b)
             dist[y][x] = dist[x][y]
     list_of_bonds = []
