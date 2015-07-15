@@ -28,21 +28,17 @@ prefix_name = 'geo'
 
 class NWChemObject():
     '''Create and handle NWCHEM objects '''
-    def __init__(self, parameter_file):
-        """Get the parameters from file.
+    def __init__(self, functional, basis_set):
+        """Initialize the NWChemObject.
+
         Args(required):
-            parameter_file (str): name of the parameter file
+            functional
+            basis_set
         Raises:
             KeyError: if the functional or basis set is not defined
         """
-        with open(parameter_file) as fin:
-            parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
-        fin.close()
-        for key in ['functional', 'basis_set']:
-            if key not in parameter_dict:
-                raise KeyError("The functional or basis_set is not defined.")
-        self.functional = parameter_dict['functional']
-        self.basis_set = parameter_dict['basis_set']
+        self.functional = functional
+        self.basis_set = basis_set
 
     def generate_input(self, sdf_string):
         """Create input files for NWChem.
@@ -76,7 +72,7 @@ class NWChemObject():
         Raises:
             OSError: if nwchem_molecule.nw not present in the working directory
         """
-        if os.path.exists('nwchem_molecule.nw') == False:
+        if os.path.exists('nwchem_molecule.nw') is False:
                 raise OSError("Required input file not present.")
         nwchem = subprocess.Popen(
             execution_string+str(" nwchem_molecule.nw"),

@@ -24,34 +24,30 @@ from rdkit.Chem import ChemicalForceFields
 
 class FFObject():
     """Create and handle force-field objects."""
-    def __init__(self, parameter_file):
-        """Get the parameters from file.
+    def __init__(self, force_field, steps=1000, force_tol=1.0e-4,
+                 energy_tol=1.0e-6):
+        """Initialize the FFObject.
+
         Args(required):
-            parameter_file (str): name of the parameter file
+            force_field (str): name of the force_field to use
+
+        Args(optional):
+        (for the minimization method used for optimization)
+
+            steps (default=1000)
+            force_tol (default=1e-4)
+            energy_tol (default=1e-6)
+
         Raises:
-            KeyError: if the force field in not defined
             ValueError: if the force field is not 'uff' or 'mmff94'
-        Optional parameters for the minimization method used for optimization
-        that can be defined in the file:
-        steps (default=1000)
-        force_tol (default=1e-4)
-        energy_tol (default=1e-6)
+
         """
-        with open(parameter_file) as fin:
-            parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
-        fin.close()
-        if 'force_field' not in parameter_dict:
-            raise KeyError("The force field is not defined.")
-        self.force_field = parameter_dict['force_field']
+        self.force_field = force_field
         if self.force_field not in ['uff', 'mmff94']:
             raise ValueError("Unknown force field.")
-        s = [('steps', 1000), ('force_tol', 1.0e-4), ('energy_tol', 1.0e-6)]
-        for k, v in s:
-            if k not in parameter_dict:
-                parameter_dict[k] = v
-        self.steps = parameter_dict['steps']
-        self.force_tol = parameter_dict['force_tol']
-        self.energy_tol = parameter_dict['energy_tol']
+        self.steps = steps
+        self.force_tol = force_tol
+        self.energy_tol = energy_tol
 
     def run_ff(self, sdf_string):
         """Perform the force field minimization.
@@ -65,8 +61,8 @@ class FFObject():
             ff = ChemicalForceFields.MMFFGetMoleculeForceField(mol, molprop)
         elif self.force_field == 'uff':
             ff = AllChem.UFFGetMoleculeForceField(mol)
-        ff.Minimize(int(self.steps),
-                    float(self.force_tol), float(self.energy_tol))
+        ff.Minimize(int(self.steps), float(self.force_tol),
+                    float(self.energy_tol))
         self.sdf_string_opt = Chem.MolToMolBlock(mol)
         self.energy = float('{0:.4f}'.format(ff.CalcEnergy()))
 

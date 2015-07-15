@@ -20,7 +20,12 @@
 import numpy as np
 import random
 
-from utilities import find_two_in_list, print_output
+from utilities import (
+    find_closest,
+    find_one_in_list,
+    find_two_in_list,
+    print_output
+)
 
 
 def selection(pop_list, selection_type, energy_range, fitness_sum_limit):
@@ -59,22 +64,22 @@ def selection(pop_list, selection_type, energy_range, fitness_sum_limit):
     if selection_type == "roulette_wheel":
         if fitness_sum > fitness_sum_limit:
             x, y = find_two_in_list(fitness_sum, fitness)
-            parent1 = pop_list[x-1]
-            parent2 = pop_list[y-1]
+            parent1 = pop_list[x]
+            parent2 = pop_list[y]
         else:  # if the sum is below the limit, best and a random are selected
             parent1 = pop_list[0]
-            parent2 = pop_list[int(np.ceil(np.random.rand()*(len(pop_list)-1)))]
+            parent2 = pop_list[int(random.choice(range(1, len(pop_list))))]
     if selection_type == "roulette_wheel_reverse":
         if fitness_sum > fitness_sum_limit:  # in order to prevent num problems
             fitness_rev = np.zeros(len(fitness))
             for i in range(len(fitness)):
                 fitness_rev[-(i+1)] = fitness[i]  # swapping of fitness values
             x, y = find_two_in_list(fitness_sum, fitness_rev)
-            parent1 = pop_list[x-1]
-            parent2 = pop_list[y-1]
+            parent1 = pop_list[x]
+            parent2 = pop_list[y]
         else:
             parent1 = pop_list[-1]
-            parent2 = pop_list[int(np.ceil(np.random.rand()*(len(pop_list)-1))-1)]
+            parent2 = pop_list[int(random.choice(range(1, len(pop_list)))-1)]
     if selection_type == "random":
         parents_ind = random.sample(xrange(len(pop_list)), 2)
         parent1 = pop_list[parents_ind[0]]
@@ -89,7 +94,7 @@ def crossover(list1, list2):
         list1 (list): list of values
         list2 (list): list of values
     Returns:
-        two numpy arrays
+        two lists (converted numpy arrays)
     Raises:
         ValueError: if the length of the lists differ
     """
@@ -110,60 +115,54 @@ def crossover(list1, list2):
         for n in range(len(end2)):
             end2[ind] = list1[cross_point+n]
             ind += 1
-        new_list1 = np.append(start1, end1)
-        new_list2 = np.append(start2, end2)
+        new_list1 = list(np.append(start1, end1))
+        new_list2 = list(np.append(start2, end2))
         return new_list1, new_list2
     else:
         return list1, list2
 
 
-def mutation_tor(list_for_mut, max_mutations_torsions):
-    """Mutate a list of torsion values.
+def mutation(list_for_mut, max_mutations, options, weights=None,
+             periodic=False):
+    """Mutate a list of values.
 
-    Args:
-        list_for_mut (list): list of values
-        max_mutations_torsions (int): maximal allowed number of mutations
+    Args(required):
+        list_for_mut (list): list of values to be mutated
+        max_mut: maximal number of changes to be made
+        options: list of options for new values
+    Args(optional):
+        weights (list): weights for options
+        periodic (bool)
     Returns:
-        mutated list; integers from (-180,179) are allowed as new values
-    Raises:
-        TypeError: if the max_mutations_torsions is not an integer
-        ValueError: if the max_mutations_torsions is negative
+        mutated list
     """
-    if not isinstance(max_mutations_torsions, int):
-        raise TypeError("The maximal number of mutations needs to be an integer")
-    if max_mutations_torsions < 0:
-        raise ValueError("The maximal number of mutations cannot be negative")
-    mut_numb = int(np.ceil(np.random.rand()*max_mutations_torsions))
-    newtor1 = []
-    for p in range(mut_numb):
-        newtor1.append(np.ceil(np.random.rand()*359.0)-180.0)
-        mutp2 = int(np.ceil(np.random.rand()*len(list_for_mut)))
-        list_for_mut[mutp2-1] = newtor1[p]
-    return list_for_mut
 
+    if not isinstance(max_mutations, int):
+        raise TypeError("The max. number of mutations needs to be an integer")
+    if max_mutations < 0:
+        raise ValueError("The max. number of mutations cannot be negative")
+    mut_numb = random.randint(1, min(max_mutations, len(list_for_mut)))
+    pos = random.sample(range(len(list_for_mut)), mut_numb)
+    for p in pos:
+        current_value = list_for_mut[p]
+        banned = find_closest(current_value, options, periodic)
+        cnt = 0
+        while cnt < 100:
+            if weights is None:
+                new_value = random.sample(options, 1)[0]
+            else:
+                new_value = options[find_one_in_list(sum(weights), weights)]
 
-def mutation_cistrans(list_for_mut, max_mutations_cistrans):
-    """Mutate a list of cistrans values.
+            if len(banned) != len(options):
+                if new_value not in banned:
+                    list_for_mut[p] = new_value
+                    break
+                else:
+                    cnt += 1
+            else:
+                # for very rare cases, i.e. if there are only two options
+                # and the value is the mean of them!
+                list_for_mut[p] = new_value
+                break
 
-    Args:
-        list_for_mut (list): list of values
-        max_mutations_cistrans (int): maximal allowed number of mutations
-    Returns:
-        mutated list; values from (-90,90> are changed to 180; otherwise to 0
-    Raises:
-        TypeError: if the max_mutations_cistrans is not an integer
-        ValueError: if the max_mutations_cistrans is negative
-    """
-    if not isinstance(max_mutations_cistrans, int):
-        raise TypeError("The maximal number of mutations needs to be an integer")
-    if max_mutations_cistrans < 0:
-        raise ValueError("The maximal number of mutations cannot be negative")
-    mut_numb = int(np.ceil(np.random.rand()*max_mutations_cistrans))
-    for p in range(mut_numb):
-        mutp1 = int(np.ceil(np.random.rand()*len(list_for_mut)))
-        wert = list_for_mut[mutp1-1]
-        if wert > 90.0 or wert < -90.0:
-            list_for_mut[mutp1-1] = 0.0
-        else:
-            list_for_mut[mutp1-1] = 180.0
     return list_for_mut

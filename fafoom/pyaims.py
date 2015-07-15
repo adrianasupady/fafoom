@@ -26,19 +26,11 @@ from utilities import remover_file, sdf2aims, string2file
 
 class AimsObject():
     """Create and handle FHI-aims objects."""
-    def __init__(self, parameter_file):
-        """Get the directory containing the control.in file.
-        Args:
-            parameter_file (str): name of the parameter file
-        Raises:
-            KeyError: if the source directory is not defined
+    def __init__(self, sourcedir):
+        """Initialize the object. The sourcedir is the directory with the
+        'control.in' file
         """
-        with open(parameter_file) as fin:
-            parameter_dict = dict(line.strip().partition(' ')[::2] for line in fin)
-        fin.close()
-        if 'sourcedir' not in parameter_dict:
-            raise KeyError("The source directory is not defined.")
-        self.sourcedir = parameter_dict['sourcedir']
+        self.sourcedir = sourcedir
 
     def generate_input(self, sdf_string):
         """Create input files for FHI-aims.
@@ -78,8 +70,9 @@ class AimsObject():
             OSError: if geometry.in or control.in not present in the working
             directory
         """
+        success = False
         for filename in ['control.in', 'geometry.in']:
-            if os.path.exists(filename) == False:
+            if os.path.exists(filename) is False:
                 raise OSError("Required input file not present.")
         aims = subprocess.Popen(
             execution_string, stdout=subprocess.PIPE, shell=True)
@@ -87,39 +80,42 @@ class AimsObject():
             ['cat'], stdin=aims.stdout,
             stdout=open('result.out', 'w'), shell=True)
         out.wait()
+        s0 = "Present geometry is converged"
         s = "Total energy of the DFT / Hartree-Fock s.c.f. calculation      :"
-        s2 = "*** scf_solver: SCF cycle not converged."
-        s3 = "Final atomic structure:"
+        s2 = "Final atomic structure:"
+        not_conv = True
         searchfile = open("result.out", "r")
         for line in searchfile:
-            if s in line:
-                a = line.split(" ")
-                self.energy = float('{0:.4f}'.format(float(a[-2])))
-            if s2 in line:
-                killfile = open("kill.dat", "w")
-                killfile.close()
-        searchfile.close()
-        searchfile = open("result.out", "r")
-        for i, line in enumerate(searchfile, 1):
-            if s3 in line:
-                l_num = int(i)
+            if s0 in line:
+                not_conv = False
         searchfile.close()
 
-        atoms = len(self.aims_string.splitlines())
-        with open('geometry.out', 'w') as file_geo:
-            try:
+        if not_conv:
+            killfile = open("kill.dat", "w")
+            killfile.close()
+
+        else:
+            searchfile = open("result.out", "r")
+            for i, line in enumerate(searchfile, 1):
+                if s in line:
+                    a = line.split(" ")
+                    self.energy = float('{0:.4f}'.format(float(a[-2])))
+                if s2 in line:
+                    l_num = int(i)
+            searchfile.close()
+            atoms = len(self.aims_string.splitlines())
+            with open('geometry.out', 'w') as file_geo:
                 with open('result.out') as f:
                     for line in itertools.islice(f, l_num+1, l_num+1+atoms):
                         file_geo.write(line)
-            except IOError or NameError or UnboundLocalError:
-                with open('geometry.in') as f:
-                    for line in f:
-                        file_geo.write(line)
-        file_geo.close()
-        f.close()
-        with open('geometry.out', 'r') as f:
-            self.aims_string_opt = f.read()
-        f.close()
+            file_geo.close()
+            f.close()
+            with open('geometry.out', 'r') as f:
+                self.aims_string_opt = f.read()
+            f.close()
+            success = True
+
+        return success
 
     def get_energy(self):
         """Get the energy of the molecule.
@@ -151,10 +147,13 @@ class AimsObject():
         """Store the output and clean the working direction after the FHI-aims
         calculation has been completed.
         """
-        os.remove('geometry.in')
-        os.remove('control.in')
-        shutil.copy('result.out', self.dirname)
-        os.remove('result.out')
-        remover_file('geometry.in.next_step')
-        shutil.copy('geometry.out', self.dirname)
-        os.remove('geometry.out')
+        try:
+            os.remove('geometry.in')
+            os.remove('control.in')
+            shutil.copy('result.out', self.dirname)
+            os.remove('result.out')
+            remover_file('geometry.in.next_step')
+            shutil.copy('geometry.out', self.dirname)
+            os.remove('geometry.out')
+        except IOError:
+            pass
