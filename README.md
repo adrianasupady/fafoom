@@ -5,9 +5,9 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 ## Requirements
 
 * functionality of the tool:
-  * Python (used: 2.7.6)
-  * Numpy (used: 1.8.2)
-  * RDKit (used: Release_2015_03_1)
+  * Python (used for testing: 2.7.6)
+  * Numpy (used for testing: 1.8.2)
+  * RDKit (used for testing: Release_2015_03_1)
 
 * first-principles methods:
   * (recommended) FHI-aims (Fritz Haber Institute ab initio molecular simulations package)
