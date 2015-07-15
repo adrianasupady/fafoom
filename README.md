@@ -5,9 +5,9 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 ## Requirements
 
 * functionality of the tool:
-  * Python 2.7
-  * Numpy
-  * RDKit (used version: Release_2014_09_2)
+  * Python (used: 2.7.6)
+  * Numpy (used: 1.8.2)
+  * RDKit (used: Release_2015_03_1)
 
 * first-principles methods:
   * (recommended) FHI-aims (Fritz Haber Institute ab initio molecular simulations package)
@@ -24,13 +24,14 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 
     import fafoom
 
-## Examples of usage
+## Example of usage
 
-Three examples are provided with the source code in the examples folder:
+An implementation of a genetic algorithm is provided in the examples folder.
+Depending on the used parameter file following genetic algorithm based searches can be run:
 
-* genetic algorithm based search utilizing first-principles (FHI-aims required)
-* genetic algorithm based search utilizing force fields (force fields accessed from RDKit)
-* genetic algorithm based search utilizing first-principles via NWChem (NWChem required)
+* parameter_aims.txt for first-principles (FHI-aims required)
+* paremeter_ff.txt for force fields (force fields accessed from RDKit)
+* parameter_nwchem.txt for first-principles via NWChem (NWChem required)
 
 Get familiar with the provided manual to learn more about the tool and the parameters. 
 
