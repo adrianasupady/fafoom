@@ -41,12 +41,26 @@ class DOF:
 
 
 class Torsion(DOF):
-
+    """ Find, create and handle rotatable bonds"""
+    # Rotatable Bonds can freely rotate around themselves
     values_options = range(-179, 181, 1)
 
     @staticmethod
     def find(smile, smart_torsion="[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]",
              filter_smart_torsion=None, positions=None):
+        """Find the positions of rotatable bonds in the molecule.
+
+        Args(required):
+            smile (str)
+        Arge(optional)
+            smart_torion (str) : pattern defintion for the torsions, if not
+            defined, a default pattern "[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]"
+            will be used
+            filter_smart_torsion (str): pattern defition for the torsion to be
+            ignored
+            positions (list of tuples) : if the positions (in terms of atom
+            indicies) of the torsions is known, they can be passed directly
+        """
         if positions is None:
             mol = Chem.MolFromSmiles(smile)
             if mol is None:
@@ -77,14 +91,25 @@ class Torsion(DOF):
         return positions
 
     def __init__(self, positions):
+        """Initialaize the Torsion object from the positions."""
         self.type = "torsion"
         self.positions = positions
 
     def get_random_values(self):
+        """Generate a random value for each of the positions of the Torsion
+        object"""
         self.values = [choice(Torsion.values_options)
                        for i in range(len(self.positions))]
 
     def get_weighted_values(self, weights):
+        """Generate a random, but weighted value for each of the positions of
+        the Torsion object.
+
+        Args:
+            weights (list): weights for all allowed values options, if it is
+            not of the length of the values options, random values will be
+            generated
+        """
         if len(weights) == len(Torsion.values_options):
             self.values = [Torsion.values_options[find_one_in_list(sum(
                            weights), weights)]
@@ -93,26 +118,57 @@ class Torsion(DOF):
             self.values = [choice(Torsion.values_options)
                            for i in range(len(self.positions))]
 
-    def apply_on_string(self, string, values_to_set=None):
+    def apply_on_string(self, sdf_string, values_to_set=None):
+        """Adjust the sdf string to match the values of the Torsion object.
+
+        Args(required):
+            sdf_string
+        Args(optional):
+            values_to_set (list) : a list of values to be set can be passed
+            directly
+        """
         if values_to_set is not None:
             self.values = values_to_set
         for i in range(len(self.positions)):
-            string = dihedral_set(string, self.positions[i], self.values[i])
+            string = dihedral_set(sdf_string, self.positions[i],
+                                  self.values[i])
         return string
 
     def mutate_values(self, max_mutations=None, weights=None):
+        """Call for a mutation of the list of Torsion object values
+
+        Args (optional):
+            max_mutations (int): maximal number of mutations to be performed on
+            the values list
+            weights (list) : weights for the values_options
+        """
         if max_mutations is None:
             max_mutations = max(1, int(math.ceil(len(self.values)/2.0)))
         self.values = mutation(self.values, max_mutations,
                                Torsion.values_options, weights, periodic=True)
 
-    def update_values(self, string):
+    def update_values(self, sdf_string):
+        """Measure and update the Torsion object values.
+
+        Args:
+            sdf_string
+        """
         updated_values = []
         for i in range(len(self.positions)):
-            updated_values.append(dihedral_measure(string, self.positions[i]))
+            updated_values.append(dihedral_measure(sdf_string,
+                                                   self.positions[i]))
         self.values = updated_values
 
     def is_equal(self, other, threshold, chiral=True):
+        """Decide if the values of two Torsion objects are equal or not
+        (based on Torsional RMSD). If the objects have the "initial_values"
+        attributes, they will be taken into account too.
+
+        Args(optional):
+            chiral (bool): default-True, if set to False, mirror image of the
+            structure will be considered too
+        """
+
         values = []
         values.append(tor_rmsd(2, get_vec(self.values, other.values)))
 
