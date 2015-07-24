@@ -1,4 +1,4 @@
-# Fafoom - Flexible algorithm for optimization of molecules 
+﻿# Fafoom - Flexible algorithm for optimization of molecules 
 
 Fafoom is a tool for sampling the conformational space of organic molecules. Fafoom is intended to work with FHI-aims (Fritz Haber Institute ab initio molecular simulations package).
 
@@ -34,6 +34,18 @@ Depending on the used parameter file following genetic algorithm based searches 
 * parameter_nwchem.txt for first-principles via NWChem (NWChem required)
 
 Get familiar with the provided manual to learn more about the tool and the parameters. 
+
+## Outlook
+
+Development goals:
+
+* flexible formulation of the scoring function, e.g. allowing for optimizing a user-defined property
+* adding more kinds of degrees of freedom, e.g. orientation of a molecule
+* adding wrappers for different molecular simulations packages
+
+Comments, feedback or development contributions are always welcome! 
+
+
 
 ## License
 
