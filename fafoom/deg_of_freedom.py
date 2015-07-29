@@ -118,7 +118,7 @@ class Torsion(DOF):
             self.values = [choice(Torsion.values_options)
                            for i in range(len(self.positions))]
 
-    def apply_on_string(self, sdf_string, values_to_set=None):
+    def apply_on_string(self, string, values_to_set=None):
         """Adjust the sdf string to match the values of the Torsion object.
 
         Args(required):
@@ -130,7 +130,7 @@ class Torsion(DOF):
         if values_to_set is not None:
             self.values = values_to_set
         for i in range(len(self.positions)):
-            string = dihedral_set(sdf_string, self.positions[i],
+            string = dihedral_set(string, self.positions[i],
                                   self.values[i])
         return string
 
@@ -147,7 +147,7 @@ class Torsion(DOF):
         self.values = mutation(self.values, max_mutations,
                                Torsion.values_options, weights, periodic=True)
 
-    def update_values(self, sdf_string):
+    def update_values(self, string):
         """Measure and update the Torsion object values.
 
         Args:
@@ -155,7 +155,7 @@ class Torsion(DOF):
         """
         updated_values = []
         for i in range(len(self.positions)):
-            updated_values.append(dihedral_measure(sdf_string,
+            updated_values.append(dihedral_measure(string,
                                                    self.positions[i]))
         self.values = updated_values
 
