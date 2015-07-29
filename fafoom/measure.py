@@ -173,8 +173,7 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
         #negative and positive angles, one has to calculate if the fourth
         #point is above or below the plane defined by first 3 points:
         ppoint = - np.dot(plane1, xyz[list_of_atoms[0], :])
-        dpoint = (np.dot(plane1, xyz[list_of_atoms[3], :]) +
-                  ppoint)/norm_plane1
+        dpoint = (np.dot(plane1, xyz[list_of_atoms[3], :])+ppoint)/norm_plane1
         if dpoint >= 0:
             return -(alpha*180.0)/np.pi, axor
         else:
@@ -333,9 +332,9 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
         atoms_list = []
         for x in range(0, 5):
             atoms_list.append(atoms_ring['C'+str(x)])
-            atoms_list.append(atoms_ring['O'])
-            atoms_list.append(atoms_ring['C0'])
-            atoms_list.append(atoms_ring['O0'])
+        atoms_list.append(atoms_ring['O'])
+        atoms_list.append(atoms_ring['C0'])
+        atoms_list.append(atoms_ring['O0'])
 
         #Determine the anomer - alpha/beta, based on improper
         #dihedral angle C1-C0-O-O0
