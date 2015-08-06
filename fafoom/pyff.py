@@ -91,6 +91,7 @@ class FFObject():
             raise AttributeError("The calculation wasn't performed yet.")
         else:
             return self.sdf_string_opt
+
     def save_to_file(self):
         if os.path.isfile("optimized_structures.sdf"):
             f = open("optimized_structures.sdf", "a")
