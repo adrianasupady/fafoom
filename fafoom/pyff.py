@@ -16,7 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 
 '''Wrapper for RDKit force-field routines'''
-
+import os
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import ChemicalForceFields
@@ -91,3 +91,13 @@ class FFObject():
             raise AttributeError("The calculation wasn't performed yet.")
         else:
             return self.sdf_string_opt
+    def save_to_file(self):
+        if os.path.isfile("optimized_structures.sdf"):
+            f = open("optimized_structures.sdf", "a")
+        else:
+            f = open("optimized_structures.sdf", "w")
+        f.write(str(self.sdf_string_opt)+'\n')
+        f.write(">  <Energy>"+'\n')
+        f.write(str(self.energy)+'\n\n')
+        f.write("$$$$"+'\n')
+        f.close()

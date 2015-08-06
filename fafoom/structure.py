@@ -388,7 +388,7 @@ class Structure:
         self.energy = ff_object.get_energy()
         self.initial_sdf_string = self.sdf_string
         self.sdf_string = ff_object.get_sdf_string_opt()
-
+        ff_object.save_to_file()
         for dof in self.dof:
             setattr(dof, "initial_values", dof.values)
             dof.update_values(self.sdf_string)
