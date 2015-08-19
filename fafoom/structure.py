@@ -28,6 +28,7 @@ from genetic_operations import crossover
 from pyaims import AimsObject
 from pyff import FFObject
 from pynwchem import NWChemObject
+from pyorca import orcaObject
 
 from utilities import (
     aims2sdf,
@@ -272,7 +273,7 @@ class Structure:
         return check
 
     def __eq__(self, other):
-        """Deicide, if the objects are equal based on the rms values.
+        """Decide, if the objects are equal based on the rms values.
 
         Returns:
             True, if the objects are 'similar'
@@ -374,6 +375,23 @@ class Structure:
         self.energy = nwchem_object.get_energy()
         self.initial_sdf_string = self.sdf_string
         self.sdf_string = xyz2sdf(nwchem_object.get_xyz_string_opt(),
+                                  self.mol_info.template_sdf_string)
+
+        for dof in self.dof:
+            setattr(dof, "initial_values", dof.values)
+            dof.update_values(self.sdf_string)
+            
+    def perform_orca(self, commandline, chargemult, nprocs, memory, execution_string):
+        """Generate the orca input, run orca, assign new attributes and
+        update attribute values."""
+        orca_object = orcaObject(commandline, chargemult, nprocs, memory)
+        orca_object.clean()
+        orca_object.generate_input(self.sdf_string)
+        orca_object.run_orca(execution_string)
+        orca_object.clean()
+        self.energy = orca_object.get_energy()
+        self.initial_sdf_string = self.sdf_string
+        self.sdf_string = xyz2sdf(orca_object.get_xyz_string_opt(),
                                   self.mol_info.template_sdf_string)
 
         for dof in self.dof:
