@@ -18,7 +18,7 @@
 import glob
 import sys
 
-from utilities import print_output, remover_file, remover_dir, backup
+from utilities import print_output, remover_file, remover_dir, backup, convert_backup
 
 
 def simple_or_restart():
@@ -92,6 +92,9 @@ def detect_energy_function(params):
         elif params['energy_function'] in ['nwchem', 'NWChem']:
             print_output("Local optimization will be performed with NWChem.")
             energy_function = "nwchem"
+        elif params['energy_function'] in ['ORCA', 'Orca', 'orca']:
+            print_output("Local optimization will be performed with ORCA.")
+            energy_function = "orca"
         elif params['energy_function'] in ['ff', 'force_field', 'RDKit',
                                            'rdkit']:
             print_output("Local optimization will be performed with RDKit.")
@@ -110,6 +113,12 @@ def optimize(structure, energy_function, params, name=None):
     elif energy_function == "nwchem":
         structure.perform_nwchem(params['functional'], params['basis_set'],
                                  params['nwchem_call'])
+    elif energy_function == "orca":
+        structure.perform_orca(params['commandline'],
+                               params['chargemult'],
+                               params['nprocs'],
+                               params['memory'],
+                               params['orca_call'])
     elif energy_function == "ff":
         linked_params = {}
         for key in ["steps", "force_tol", "energy_tol"]:
@@ -150,6 +159,7 @@ def check_for_convergence(iteration, params, min_energy):
             if min_energy[-1] < params['energy_wanted'] or \
                d < params['energy_diff_conv']:
                 print_output("Converged")
+                backup_to_sdf()
                 killfile = open("kill.dat", "w")
                 killfile.close()
                 sys.exit(0)
@@ -158,6 +168,7 @@ def check_for_convergence(iteration, params, min_energy):
         else:
             if d < params['energy_diff_conv']:
                 print_output("Converged")
+                backup_to_sdf()
                 killfile = open("kill.dat", "w")
                 killfile.close()
                 sys.exit(0)
@@ -170,3 +181,9 @@ def check_for_convergence(iteration, params, min_energy):
         sys.exit(0)
     else:
         print_output("Next iteration will be perfomed")
+
+def backup_to_sdf():
+    backupfiles = glob.glob('backup_*')
+    for backupfile in backupfiles:
+        if ("blacklist" in backupfile) or ("population" in backupfile):
+            convert_backup(backupfile)
