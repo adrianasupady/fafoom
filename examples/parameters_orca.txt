@@ -31,3 +31,6 @@ chargemult= "0 1"
 nprocs= "1"
 memory= "6000"
 orca_call= "/full/path/to/orca"
+max_iter= 100
+iter_limit_conv= 20
+energy_diff_conv= 0.001
