@@ -3,26 +3,23 @@
 #    This file is part of fafoom.
 #
 #   Fafoom is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU Lesser General Public License as
-#   published by the Free Software Foundation, either version 3 of the
-#   License, or (at your option) any later version.
+#   it under the terms of the GNU Lesser General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
 #
 #   Fafoom is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with fafoom. If not, see http://www.gnu.org/licenses/
+#  You should have received a copy of the GNU Lesser General Public License
+#   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 ''' Collection of diverse help/convert functions '''
 import os
 import numpy as np
 import math
 import shutil
 import ConfigParser
-import sys
-import re
-import errno
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -133,8 +130,7 @@ def ig(x):
 
 
 def cleaner(list_to_clean):
-    """ Remove duplicate torsion definion from a list of atom ind.
-    tuples."""
+    """ Remove duplicate torsion definion from a list of atom ind. tuples."""
     for_remove = []
     for x in reversed(range(len(list_to_clean))):
         for y in reversed(range(x)):
@@ -159,8 +155,8 @@ def get_vec(vec1, vec2):
         ValueError: if the length of the lists differ
 
     Warning1: the vectors contain periodic values, i.e -185 -> 175
-    Warning2: symmetry is not included here, but can be easily added if
-    the index of the 'symmetric' torsion is known
+    Warning2: symmetry is not included here, but can be easily added if the
+    index of the 'symmetric' torsion is known
     """
     if len(vec1) != len(vec2):
         raise ValueError("No length match between the lists")
@@ -172,9 +168,8 @@ def get_vec(vec1, vec2):
 
 
 def tor_rmsd(p, vec):
-    """Calculate the modified p norm.The difference from standard norm
-    is the fact that the addends are divided by the length of the
-    vector."""
+    """Calculate the modified p norm.The difference from standard norm is the
+    fact that the addends are divided by the length of the vector."""
     summe = 0
     for i in range(0, len(vec)):
         summe += math.pow(abs(vec[i]), p)
@@ -203,8 +198,8 @@ def lowest_cartesian(string1, string2, **linked_strings):
 
 
 def find_one_in_list(sum_array, list_to_search):
-    """Generate a random number and return the corresponding index from
-    a list. See the description of the method find_two_in_list."""
+    """Generate a random number and return the corresponding index from a
+    list. See the description of the method find_two_in_list."""
     nparray_to_search = np.array(list_to_search)
     rn = sum_array*np.random.rand()
     found = False
@@ -218,11 +213,10 @@ def find_one_in_list(sum_array, list_to_search):
 
 
 def find_two_in_list(list_sum, nparray_to_search):
-    """A numpy array is mapped to a segment of a line which length is
-    equal to 1. The lengths of the segments are proportional to the
-    corresponding numpy array values. Next, two random numbers between
-    0 and 1 are generated and the segments containing these random
-    numbers are returned."""
+    """A numpy array is mapped to a segment of a line which length is equal to
+    1. The lengths of the segments are proportional to the corresponding numpy
+    array values. Next, two random numbers between 0 and 1 are generated and
+    the segments containing these random numbers are returned."""
     rn1 = list_sum*np.random.rand()
     found1 = False
     index1 = 0
@@ -247,8 +241,7 @@ def find_two_in_list(list_sum, nparray_to_search):
 
 
 def find_closest(numb, list_of_values, periodic=False):
-    """For a given number, return the closest value(s)
-    from a given list"""
+    """For a given number, return the closest value(s) from a given list"""
     all_dist = []
     for value in list_of_values:
         if periodic:
@@ -267,13 +260,13 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
     """Check geometry from a sdf_string for clashes.
 
     Args:
-       sdf_string (str)
-       distance_cutoff_1 (float): min dist. between non-bonded atoms [A]
-       distance_cutoff_2 (float): max dist. between bonded atoms [A]
+        sdf_string (str)
+        distance_cutoff_1 (float): min distance between non-bonded atoms [A]
+        distance_cutoff_2 (float): max distance between bonded atoms [A]
     Returns:
-       True for clash-free geometries and False for invalid geometries
+        True for clash-free geometries and False for invalid geometries
     Raises:
-       ValueError: if distance cutoffs are non-positive
+        ValueError: if distance cutoffs are non-positive
     """
 
     if cutoff1 <= 0 or cutoff2 <= 0:
@@ -309,14 +302,11 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
         for x in range(atoms):
             for y in xrange(x+1, atoms):
                 if [x+1, y+1] not in list_of_bonds and \
-                   [y+1, x+1] not in list_of_bonds and \
-                   dist[x][y] < cutoff1:
+                   [y+1, x+1] not in list_of_bonds and dist[x][y] < cutoff1:
                     check = False
                     return check
-                elif ([x+1, y+1] in list_of_bonds and \
-                   dist[x][y] > cutoff2) or\
-                     ([y+1, x+1] in list_of_bonds and \
-                   dist[x][y] > cutoff2):
+                elif ([x+1, y+1] in list_of_bonds and dist[x][y] > cutoff2) or\
+                     ([y+1, x+1] in list_of_bonds and dist[x][y] > cutoff2):
                     check = False
                     return check
         return True
@@ -325,8 +315,8 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
 
 
 def get_ind_from_sdfline(sdf_line):
-    """Extract the indicies from the sdf string (for molecules with more
-    than 99 atoms)"""
+    """Extract the indicies from the sdf string (for molecules with more than
+    99 atoms)"""
     l = len(sdf_line.split()[0])
     if l < 4:
         ind1 = int(sdf_line.split()[0])
@@ -376,8 +366,8 @@ def sdf2xyz(sdf_string):
 
 
 def aims2sdf(aims_string, sdf_template_string):
-    """Convert a aims string to a sdf string. Template for the sdf
-    string is required."""
+    """Convert a aims string to a sdf string. Template for the sdf string is
+    required."""
     atoms = len(aims_string.splitlines())
     sdf_form = sdf_template_string.splitlines()
     c = []
@@ -391,8 +381,8 @@ def aims2sdf(aims_string, sdf_template_string):
             cnt += 1
             c.append('%10.4f%10.4f%10.4f%s%-2s' % (float(line[0]),
                                                    float(line[1]),
-                                                   float(line[2]),
-                                                   str(' '), line[3]))
+                                                   float(line[2]), str(' '),
+                                                   line[3]))
             for j in xrange(4, len(line)):
                 if j == 4:
                     c.append('%3d' % int(line[j]))
@@ -408,8 +398,8 @@ def aims2sdf(aims_string, sdf_template_string):
 
 
 def xyz2sdf(xyz_string, sdf_template_string):
-    """Convert a xyz string to a sdf string. Template for the sdf string
-    is required."""
+    """Convert a xyz string to a sdf string. Template for the sdf string is
+    required."""
     arr = xyz_string.splitlines()
     atoms = int(arr[0].split()[0])
     xyz_string_cut = '\n'.join(arr[2:])
@@ -425,8 +415,8 @@ def xyz2sdf(xyz_string, sdf_template_string):
             cnt += 1
             c.append('%10.4f%10.4f%10.4f%s%-2s' % (float(line[0]),
                                                    float(line[1]),
-                                                   float(line[2]),
-                                                   str(' '), line[3]))
+                                                   float(line[2]), str(' '),
+                                                   line[3]))
             for j in xrange(4, len(line)):
                 if j == 4:
                     c.append('%3d' % int(line[j]))
@@ -456,8 +446,8 @@ def mirror_sdf(sdf_string):
             cnt += 1
             c.append('%10.4f%10.4f%10.4f%s%-2s' % (float(line[0]),
                                                    float(line[1]),
-                                                   float(line[2]),
-                                                   str(' '), line[3]))
+                                                   float(line[2]), str(' '),
+                                                   line[3]))
             for j in xrange(4, len(line)):
                 if j == 4:
                     c.append('%3d' % int(line[j]))
@@ -469,37 +459,3 @@ def mirror_sdf(sdf_string):
             c.append(''.join(sdf_form[i])+'\n')
     mirror_sdf_string = ''.join(c)
     return mirror_sdf_string
-
-
-# this function is from http://stackoverflow.com/a/10840586
-def silentremove(filename):
-    try:
-        os.remove(filename)
-    # this would be "except OSError, e:" before Python 2.6
-    except OSError as e:
-        # errno.ENOENT = no such file or directory
-        if e.errno != errno.ENOENT:
-            # re-raise exception if a different error occured
-            raise
-
-def convert_backup(filename):
-    filestring = open(filename,'r').read()
-    p = re.findall(r"'(.*?)'", filestring, re.DOTALL)
-    
-    if "blacklist" in filename:
-        sdfname = "blacklist.sdf"
-        silentremove(sdfname)
-    elif "population" in filename:
-        sdfname = "population.sdf"
-        silentremove(sdfname)
-    
-    with open(sdfname, 'a') as fn:
-        iszero = 0
-        for x in p:
-            if "NEWLINE" in x:
-                if iszero == 1:
-                    y = "\n".join(x.split("NEWLINE"))
-                    fn.write(y+'$$$$\n')
-                    iszero = 0
-                else:
-                    iszero = 1
