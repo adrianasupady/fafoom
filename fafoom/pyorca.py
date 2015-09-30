@@ -23,6 +23,9 @@ import subprocess
 
 from utilities import sdf2xyz
 
+hartree2eV = 27.21138602
+
+
 class orcaObject():
     '''Create and handle ORCA objects '''
     def __init__(self, commandline, chargemult, nprocs, memory):
@@ -106,7 +109,7 @@ class orcaObject():
         if not hasattr(self, 'energy'):
             raise AttributeError("The calculation wasn't performed yet.")
         else:
-            return self.energy
+            return hartree2eV*self.energy
 
     def get_xyz_string_opt(self):
         """Get the optimized xyz string.
@@ -127,4 +130,3 @@ class orcaObject():
         """
         for f in glob.glob("orca_molecule.*"):
             os.remove(f)
-
