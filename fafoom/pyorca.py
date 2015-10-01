@@ -34,10 +34,13 @@ class orcaObject():
 
         Args(required):
             commandline
-            nprocs
             memory
+        Args(optional):
+            chargemult (default="0 1")
+            nprocs (default=1)
+            optsteps (default=500)
         Raises:
-            KeyError: if the commandline is not defined
+            KeyError: if the commandline or memory is not defined
         """
         self.commandline = commandline
         self.memory = memory
