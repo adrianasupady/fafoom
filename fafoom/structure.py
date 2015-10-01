@@ -28,7 +28,7 @@ from genetic_operations import crossover
 from pyaims import AimsObject
 from pyff import FFObject
 from pynwchem import NWChemObject
-from pyorca import orcaObject
+from pyorca import OrcaObject
 
 from utilities import (
     aims2sdf,
@@ -384,7 +384,7 @@ class Structure:
     def perform_orca(self, commandline, memory, execution_string, **kwargs):
         """Generate the orca input, run orca, assign new attributes and
         update attribute values."""
-        orca_object = orcaObject(commandline, memory, **kwargs)
+        orca_object = OrcaObject(commandline, memory, **kwargs)
         orca_object.clean()
         orca_object.generate_input(self.sdf_string)
         orca_object.run_orca(execution_string)

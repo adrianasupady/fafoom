@@ -26,11 +26,11 @@ from utilities import sdf2xyz
 hartree2eV = 27.21138602
 
 
-class orcaObject():
+class OrcaObject():
     '''Create and handle ORCA objects '''
     def __init__(self, commandline, memory, chargemult="0 1", nprocs=1,
                  optsteps=500):
-        """Initialize the orcaObject.
+        """Initialize the OrcaObject.
 
         Args(required):
             commandline
