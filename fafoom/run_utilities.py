@@ -114,11 +114,13 @@ def optimize(structure, energy_function, params, name=None):
         structure.perform_nwchem(params['functional'], params['basis_set'],
                                  params['nwchem_call'])
     elif energy_function == "orca":
+        linked_params = {}
+        for key in ["chargemult", "nprocs", "optsteps"]:
+            if key in params:
+                linked_params[str(key)] = params[str(key)]
         structure.perform_orca(params['commandline'],
-                               params['chargemult'],
-                               params['nprocs'],
                                params['memory'],
-                               params['orca_call'])
+                               params['orca_call'], **linked_params)
     elif energy_function == "ff":
         linked_params = {}
         for key in ["steps", "force_tol", "energy_tol"]:
