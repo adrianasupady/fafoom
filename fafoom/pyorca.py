@@ -28,7 +28,7 @@ hartree2eV = 27.21138602
 
 class orcaObject():
     '''Create and handle ORCA objects '''
-    def __init__(self, commandline, chargemult, nprocs, memory):
+    def __init__(self, commandline, chargemult, nprocs, memory, optsteps=500):
         """Initialize the orcaObject.
 
         Args(required):
@@ -42,6 +42,7 @@ class orcaObject():
         self.chargemult = chargemult
         self.nprocs = nprocs
         self.memory = memory
+        self.optsteps = optsteps
 
     def generate_input(self, sdf_string):
         """Create input files for ORCA.
@@ -52,15 +53,17 @@ class orcaObject():
         coord = xyz_string.split('\n')
         string1 = '! '+str(self.commandline)+'\n'
         string2 = '! xyzfile\n'
-        string3 = '%pal nprocs '+str(self.nprocs)+" end\n"
-        string4 = '%maxcore '+str(self.memory)+"\n"
-        string5 = '* xyz '+str(self.chargemult)+'\n'
+        string3 = '%geom MaxIter '+str(self.optsteps)+' end\n'
+        string4 = '%pal nprocs '+str(self.nprocs)+" end\n"
+        string5 = '%maxcore '+str(self.memory)+"\n"
+        string6 = '* xyz '+str(self.chargemult)+'\n'
         with open('orca_molecule.inp', 'w') as f:
             f.write(string1)
             f.write(string2)
             f.write(string3)
             f.write(string4)
             f.write(string5)
+            f.write(string6)
             f.write('\n'.join(coord[2:]))
             f.write('*\n')
         f.close()
@@ -77,6 +80,7 @@ class orcaObject():
         Raises:
             OSError: if orca_molecule.inp not present in the working directory
         """
+        success = False
         if os.path.exists('orca_molecule.inp') is False:
                 raise OSError("Required input file not present.")
         orca = subprocess.Popen(
@@ -86,17 +90,32 @@ class orcaObject():
             ['cat'], stdin=orca.stdout,
             stdout=open('result.out', 'w'), shell=True)
         out.wait()
+
         searchfile = open("result.out", "r")
+
+        s0 = "THE OPTIMIZATION HAS CONVERGED"
+        s = "FINAL SINGLE POINT ENERGY"
+        not_conv = True
         for line in searchfile:
-            if "FINAL SINGLE POINT ENERGY" in line:
-                a = float(line.split(" ")[-1].split('\n')[0])
-                energy_tmp = a
+            if s0 in line:
+                not_conv = False
         searchfile.close()
-        self.energy = energy_tmp
-        all_images = glob.glob('orca_molecule.xyz')
-        with open(all_images[-1], 'r') as f:
-            self.xyz_string_opt = f.read()
-        f.close()
+        if not_conv:
+            killfile = open("kill.dat", "w")
+            killfile.close()
+        else:
+            searchfile = open("result.out", "r")
+            for line in searchfile:
+                if s in line:
+                    energy_tmp = float(line.split(" ")[-1].split('\n')[0])
+            searchfile.close()
+            self.energy = energy_tmp
+
+            with open('orca_molecule.xyz', 'r') as f:
+                self.xyz_string_opt = f.read()
+            f.close()
+            success = True
+        return success
 
     def get_energy(self):
         """Get the energy of the molecule.
