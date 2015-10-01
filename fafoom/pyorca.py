@@ -28,7 +28,8 @@ hartree2eV = 27.21138602
 
 class orcaObject():
     '''Create and handle ORCA objects '''
-    def __init__(self, commandline, chargemult, nprocs, memory, optsteps=500):
+    def __init__(self, commandline, memory, chargemult="0 1", nprocs=1,
+                 optsteps=500):
         """Initialize the orcaObject.
 
         Args(required):
@@ -39,9 +40,9 @@ class orcaObject():
             KeyError: if the commandline is not defined
         """
         self.commandline = commandline
+        self.memory = memory
         self.chargemult = chargemult
         self.nprocs = nprocs
-        self.memory = memory
         self.optsteps = optsteps
 
     def generate_input(self, sdf_string):
