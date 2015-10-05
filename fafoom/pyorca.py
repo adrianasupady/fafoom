@@ -27,7 +27,7 @@ hartree2eV = 27.21138602
 
 
 class OrcaObject():
-    '''Create and handle ORCA objects '''
+    '''Create and handle ORCA objects.'''
     def __init__(self, commandline, memory, chargemult="0 1", nprocs=1,
                  optsteps=500):
         """Initialize the OrcaObject.
@@ -86,7 +86,7 @@ class OrcaObject():
         """
         success = False
         if os.path.exists('orca_molecule.inp') is False:
-                raise OSError("Required input file not present.")
+            raise OSError("Required input file not present.")
         orca = subprocess.Popen(
             execution_string+str(" orca_molecule.inp"),
             stdout=subprocess.PIPE, shell=True)
@@ -125,7 +125,7 @@ class OrcaObject():
         """Get the energy of the molecule.
 
         Returns:
-            energy (float)
+            energy (float) in eV
         Raises:
             AttributeError: if energy hasn't been calculated yet
         """

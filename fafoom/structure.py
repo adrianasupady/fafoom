@@ -380,7 +380,7 @@ class Structure:
         for dof in self.dof:
             setattr(dof, "initial_values", dof.values)
             dof.update_values(self.sdf_string)
-            
+
     def perform_orca(self, commandline, memory, execution_string, **kwargs):
         """Generate the orca input, run orca, assign new attributes and
         update attribute values."""
