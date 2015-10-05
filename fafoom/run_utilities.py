@@ -92,6 +92,9 @@ def detect_energy_function(params):
         elif params['energy_function'] in ['nwchem', 'NWChem']:
             print_output("Local optimization will be performed with NWChem.")
             energy_function = "nwchem"
+        elif params['energy_function'] in ['ORCA', 'Orca', 'orca']:
+            print_output("Local optimization will be performed with ORCA.")
+            energy_function = "orca"
         elif params['energy_function'] in ['ff', 'force_field', 'RDKit',
                                            'rdkit']:
             print_output("Local optimization will be performed with RDKit.")
@@ -110,6 +113,14 @@ def optimize(structure, energy_function, params, name=None):
     elif energy_function == "nwchem":
         structure.perform_nwchem(params['functional'], params['basis_set'],
                                  params['nwchem_call'])
+    elif energy_function == "orca":
+        linked_params = {}
+        for key in ["chargemult", "nprocs", "optsteps"]:
+            if key in params:
+                linked_params[str(key)] = params[str(key)]
+        structure.perform_orca(params['commandline'],
+                               params['memory'],
+                               params['orca_call'], **linked_params)
     elif energy_function == "ff":
         linked_params = {}
         for key in ["steps", "force_tol", "energy_tol"]:

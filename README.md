@@ -12,6 +12,7 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 * first-principles methods:
   * (recommended) FHI-aims (Fritz Haber Institute ab initio molecular simulations package)
   * (alternative) NWChem (NWChem: Open Source High-Performance Computational Chemistry)
+  * (alternative) ORCA (- An ab initio, DFT and semiempirical SCF-MO package -)
 
 ## How to use
 
@@ -29,9 +30,10 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 An implementation of a genetic algorithm is provided in the examples folder.
 Depending on the used parameter file following genetic algorithm based searches can be run:
 
-* parameter_aims.txt for first-principles (FHI-aims required)
-* paremeter_ff.txt for force fields (force fields accessed from RDKit)
-* parameter_nwchem.txt for first-principles via NWChem (NWChem required)
+* parameters_aims.txt for first-principles (FHI-aims required)
+* paremeters_ff.txt for force fields (force fields accessed from RDKit)
+* parameters_nwchem.txt for first-principles via NWChem (NWChem required)
+* parameters_orca.txt for first-principles via ORCA (ORCA required)
 
 Get familiar with the provided manual to learn more about the tool and the parameters. 
 
