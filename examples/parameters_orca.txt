@@ -26,10 +26,11 @@ max_mutations_torsion= 3
 [Run settings]
 
 energy_function= "orca"
-commandline= "opt am1 nopop miniprint"
+commandline= "opt pbe nopop miniprint"
 chargemult= "0 1"
-nprocs= "1"
-memory= "6000"
+optsteps = 200
+nprocs= 4
+memory= 4000
 orca_call= "/full/path/to/orca"
 max_iter= 100
 iter_limit_conv= 20
