@@ -21,6 +21,8 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import ChemicalForceFields
 
+kcalmol2eV = 0.0433641
+
 
 class FFObject():
     """Create and handle force-field objects."""
@@ -77,7 +79,7 @@ class FFObject():
         if not hasattr(self, 'energy'):
             raise AttributeError("The calculation wasn't performed yet.")
         else:
-            return self.energy
+            return kcalmol2eV*self.energy
 
     def get_sdf_string_opt(self):
         """Get the optimized sdf string.
