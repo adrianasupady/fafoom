@@ -2,6 +2,10 @@
 
 Fafoom is a tool for sampling the conformational space of organic molecules. Fafoom is intended to work with FHI-aims (Fritz Haber Institute ab initio molecular simulations package).
 
+## News
+
+* the preprint "First-principles molecular structure search with a genetic algorithm" is available from http://arxiv.org/abs/1505.02521
+
 ## Requirements
 
 * functionality of the tool:
