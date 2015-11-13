@@ -22,27 +22,27 @@ from deg_of_freedom import Torsion, CisTrans, PyranoseRing
 from utilities import check_geo_sdf
 
 
-def get_atoms_and_bonds(smile):
+def get_atoms_and_bonds(smiles):
     """Build the molecule from SMILES and return the number of atoms and bonds.
 
     Args(required):
-        smile (str): one-line representation of the molecule
+        smiles (str): one-line representation of the molecule
     Returns:
         Number of atoms, number of bonds
     """
-    mol = Chem.MolFromSmiles(smile)
+    mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError("The smile is invalid")
+        raise ValueError("The smiles is invalid")
     mol = Chem.AddHs(mol)
     return mol.GetNumAtoms(), mol.GetNumBonds()
 
 
-def get_positions(type_of_deg, smile, **kwargs):
+def get_positions(type_of_deg, smiles, **kwargs):
     """Find the positions (tuples of atom indicies) of the degrees of freedom.
 
     Args(required):
         type_of_deg (str)
-        smile (str)
+        smiles (str)
         if cistrans should be optimized:
             smart_cistrans
     Args(optimal):
@@ -57,32 +57,32 @@ def get_positions(type_of_deg, smile, **kwargs):
 
     if type_of_deg == "torsion":
         if 'list_of_torsion' in kwargs:
-            return Torsion.find(smile, positions=kwargs['list_of_torsion'])
+            return Torsion.find(smiles, positions=kwargs['list_of_torsion'])
         else:
             if 'smart_torsion' in kwargs:
                 if 'filter_smart_torsion' in kwargs:
-                    return Torsion.find(smile,
+                    return Torsion.find(smiles,
                                         smart_torsion=kwargs['smart_torsion'],
                                         filter_smart_torsion=
                                         kwargs['filter_smart_torsion'])
                 else:
-                    return Torsion.find(smile,
+                    return Torsion.find(smiles,
                                         smart_torsion=kwargs['smart_torsion'])
             else:
-                return Torsion.find(smile)
+                return Torsion.find(smiles)
     if type_of_deg == "cistrans":
         if 'list_of_cistrans' in kwargs:
-            return CisTrans.find(smile, positions=kwargs['list_of_cistrans'])
+            return CisTrans.find(smiles, positions=kwargs['list_of_cistrans'])
         else:
-            return CisTrans.find(smile,
+            return CisTrans.find(smiles,
                                  smart_cistrans=kwargs['smart_cistrans'])
 
     if type_of_deg == "pyranosering":
         if 'list_of_pyranosering' in kwargs:
-            return PyranoseRing.find(smile,
+            return PyranoseRing.find(smiles,
                                      positions=kwargs['list_of_pyranosering'])
         else:
-            return PyranoseRing.find(smile)
+            return PyranoseRing.find(smiles)
 
 
 def create_dof_object(type_of_deg, positions):
@@ -102,11 +102,11 @@ def create_dof_object(type_of_deg, positions):
         return PyranoseRing(positions)
 
 
-def template_sdf(smile, distance_cutoff_1, distance_cutoff_2):
+def template_sdf(smiles, distance_cutoff_1, distance_cutoff_2):
     """Create a template sdf string and writes it to file.
 
     Args(required):
-        smile (str): one-line representation of the molecule
+        smiles (str): one-line representation of the molecule
     Args(optional):
         distance_cutoff_1 (float): min distance between non-bonded atoms [A]
         distance_cutoff_2 (float): max distance between bonded atoms [A]
@@ -116,7 +116,7 @@ def template_sdf(smile, distance_cutoff_1, distance_cutoff_2):
     cnt = 0
     sdf_check = True
     while sdf_check:
-        mol = Chem.MolFromSmiles(smile)
+        mol = Chem.MolFromSmiles(smiles)
         mol = Chem.AddHs(mol)
         AllChem.EmbedMolecule(mol)
         AllChem.UFFOptimizeMolecule(mol)
