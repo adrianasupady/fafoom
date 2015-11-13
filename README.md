@@ -35,7 +35,7 @@ An implementation of a genetic algorithm is provided in the examples folder.
 Depending on the used parameter file following genetic algorithm based searches can be run:
 
 * parameters_aims.txt for first-principles (FHI-aims required)
-* paremeters_ff.txt for force fields (force fields accessed from RDKit)
+* parameters_ff.txt for force fields (force fields accessed from RDKit)
 * parameters_nwchem.txt for first-principles via NWChem (NWChem required)
 * parameters_orca.txt for first-principles via ORCA (ORCA required)
 
