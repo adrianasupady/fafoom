@@ -55,10 +55,15 @@ class MoleculeDescription:
         params = {}
         if parameter_file is not None:
             params = file2dict(parameter_file, ['Molecule'])
-            try:
-                params['smiles'] = params.pop('smile')
-            except KeyError:
-                pass
+            new_names_dict = {'smile': 'smiles',
+                              'smart_torsion': 'smarts_torsion',
+                              'filter_smart_torsion': 'filter_smarts_torsion',
+                              'smart_cistrans': 'smarts_cistrans'}
+            for key in new_names_dict:
+                try:
+                    params[new_names_dict[key]] = params.pop(key)
+                except KeyError:
+                    pass
         else:
             for key in kwargs.keys():
                 if key not in ["template_sdf_string"]:
@@ -70,7 +75,7 @@ class MoleculeDescription:
         dict_default = {'rmsd_type': "cartesian", 'distance_cutoff_1': 1.3,
                         'distance_cutoff_2': 2.15, 'rmsd_cutoff_uniq': 0.2,
                         'chiral': True, 'optimize_torsion': True,
-                        'smart_torsion':
+                        'smarts_torsion':
                         "[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]"}
 
         params = set_default(params, dict_default)
