@@ -46,17 +46,17 @@ class Torsion(DOF):
     values_options = range(-179, 181, 1)
 
     @staticmethod
-    def find(smiles, smart_torsion="[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]",
-             filter_smart_torsion=None, positions=None):
+    def find(smiles, smarts_torsion="[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]",
+             filter_smarts_torsion=None, positions=None):
         """Find the positions of rotatable bonds in the molecule.
 
         Args(required):
             smiles (str)
         Arge(optional)
-            smart_torion (str) : pattern defintion for the torsions, if not
+            smarts_torion (str) : pattern defintion for the torsions, if not
             defined, a default pattern "[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]"
             will be used
-            filter_smart_torsion (str): pattern defition for the torsion to be
+            filter_smarts_torsion (str): pattern defition for the torsion to be
             ignored
             positions (list of tuples) : if the positions (in terms of atom
             indicies) of the torsions is known, they can be passed directly
@@ -65,11 +65,11 @@ class Torsion(DOF):
             mol = Chem.MolFromSmiles(smiles)
             if mol is None:
                 raise ValueError("The smiles is invalid")
-            pattern_tor = Chem.MolFromSmarts(smart_torsion)
+            pattern_tor = Chem.MolFromSmarts(smarts_torsion)
             torsion = list(mol.GetSubstructMatches(pattern_tor))
 
-            if filter_smart_torsion:
-                pattern_custom = Chem.MolFromSmarts(filter_smart_torsion)
+            if filter_smarts_torsion:
+                pattern_custom = Chem.MolFromSmarts(filter_smarts_torsion)
                 custom = list(mol.GetSubstructMatches(pattern_custom))
                 to_del_bef_custom = []
 
@@ -352,12 +352,12 @@ class CisTrans(DOF):
     values_options = [0.0, 180.0]
 
     @staticmethod
-    def find(smiles, smart_cistrans=None, positions=None):
+    def find(smiles, smarts_cistrans=None, positions=None):
         if positions is None:
             mol = Chem.MolFromSmiles(smiles)
             if mol is None:
                 raise ValueError("The smiles is invalid")
-            pattern_cistrans = Chem.MolFromSmarts(smart_cistrans)
+            pattern_cistrans = Chem.MolFromSmarts(smarts_cistrans)
             cistrans = list(mol.GetSubstructMatches(pattern_cistrans))
             positions = cleaner(cistrans)
         return positions
