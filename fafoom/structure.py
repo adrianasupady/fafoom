@@ -55,7 +55,10 @@ class MoleculeDescription:
         params = {}
         if parameter_file is not None:
             params = file2dict(parameter_file, ['Molecule'])
-
+            try:
+                params['smiles'] = params.pop('smile')
+            except KeyError:
+                pass
         else:
             for key in kwargs.keys():
                 if key not in ["template_sdf_string"]:
@@ -120,7 +123,7 @@ class MoleculeDescription:
     def get_parameters(self):
         """Assign permanent attributes (number of atoms, number of bonds and
         degrees of freedom related attributes) to the object."""
-        self.atoms, self.bonds = get_atoms_and_bonds(self.smile)
+        self.atoms, self.bonds = get_atoms_and_bonds(self.smiles)
         self_copy = deepcopy(self)
         dof_names = []
         for attr, value in self_copy.__dict__.iteritems():
@@ -130,7 +133,7 @@ class MoleculeDescription:
                 for attr, value in self_copy.__dict__.iteritems():
                     if type_of_dof in str(attr).split('_'):
                         linked_attr[attr] = value
-                pos = get_positions(type_of_dof, self.smile, **linked_attr)
+                pos = get_positions(type_of_dof, self.smiles, **linked_attr)
                 if len(pos) != 0:
                     setattr(self, type_of_dof, pos)
                     dof_names.append(type_of_dof)
@@ -141,7 +144,7 @@ class MoleculeDescription:
 
     def create_template_sdf(self):
         """Assign new attribute (template_sdf_string) to the object."""
-        self.template_sdf_string = template_sdf(self.smile,
+        self.template_sdf_string = template_sdf(self.smiles,
                                                 self.distance_cutoff_1,
                                                 self.distance_cutoff_2)
 
