@@ -44,11 +44,11 @@ def get_positions(type_of_deg, smiles, **kwargs):
         type_of_deg (str)
         smiles (str)
         if cistrans should be optimized:
-            smart_cistrans
+            smarts_cistrans
     Args(optimal):
         list_of_torsion (list)
-        smart_torsion (str)
-        filter_smart_torsion (str)
+        smarts_torsion (str)
+        filter_smarts_torsion (str)
         list_of_cistrans (list)
         list_of_pyranosering (list)
     Returns:
@@ -59,15 +59,15 @@ def get_positions(type_of_deg, smiles, **kwargs):
         if 'list_of_torsion' in kwargs:
             return Torsion.find(smiles, positions=kwargs['list_of_torsion'])
         else:
-            if 'smart_torsion' in kwargs:
-                if 'filter_smart_torsion' in kwargs:
+            if 'smarts_torsion' in kwargs:
+                if 'filter_smarts_torsion' in kwargs:
                     return Torsion.find(smiles,
-                                        smart_torsion=kwargs['smart_torsion'],
-                                        filter_smart_torsion=
-                                        kwargs['filter_smart_torsion'])
+                                        smarts_torsion=kwargs['smarts_torsion'],
+                                        filter_smarts_torsion=
+                                        kwargs['filter_smarts_torsion'])
                 else:
                     return Torsion.find(smiles,
-                                        smart_torsion=kwargs['smart_torsion'])
+                                        smarts_torsion=kwargs['smarts_torsion'])
             else:
                 return Torsion.find(smiles)
     if type_of_deg == "cistrans":
@@ -75,7 +75,7 @@ def get_positions(type_of_deg, smiles, **kwargs):
             return CisTrans.find(smiles, positions=kwargs['list_of_cistrans'])
         else:
             return CisTrans.find(smiles,
-                                 smart_cistrans=kwargs['smart_cistrans'])
+                                 smarts_cistrans=kwargs['smarts_cistrans'])
 
     if type_of_deg == "pyranosering":
         if 'list_of_pyranosering' in kwargs:
