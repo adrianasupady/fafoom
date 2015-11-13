@@ -1,6 +1,6 @@
 [Molecule]
 
-smile="CC(=O)N[C@H](C(=O)NC)C"
+smiles="CC(=O)N[C@H](C(=O)NC)C"
 optimize_torsion=True
 optimize_cistrans=True
 smart_torsion= "[*]~[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]~[*]"
