@@ -459,3 +459,8 @@ def mirror_sdf(sdf_string):
             c.append(''.join(sdf_form[i])+'\n')
     mirror_sdf_string = ''.join(c)
     return mirror_sdf_string
+
+
+def center_mass(xyz_string):
+    position = [0,0,0]
+    return position
