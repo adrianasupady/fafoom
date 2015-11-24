@@ -404,3 +404,7 @@ def pyranosering_measure(sdf_string, position, dict_of_options):
         rmsd_dict[key] = (tor_rmsd(2, get_vec(all_ang, dict_of_options[key])))
 
     return int(min(rmsd_dict.iteritems(), key=ig(1))[0])
+
+
+def orientation_set(sdf_string, quaternion):
+    return sdf_string

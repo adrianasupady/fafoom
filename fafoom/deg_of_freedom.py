@@ -16,6 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 ''' Handle the degrees of freedom.'''
 import math
+import numpy as np
 from copy import copy
 from random import choice
 from rdkit import Chem
@@ -25,7 +26,8 @@ from measure import (
     dihedral_measure,
     dihedral_set,
     pyranosering_measure,
-    pyranosering_set
+    pyranosering_set,
+    orientation_set
 )
 
 from genetic_operations import mutation
@@ -420,3 +422,40 @@ class CisTrans(DOF):
             return False
         else:
             return True
+
+
+class Orientation(DOF):
+    values_options = []
+
+    def __init__(self):
+        self.type = "orientation"
+
+    def apply_on_string(self, string, values_to_set=None):
+
+        if values_to_set is not None:
+            self.values = values_to_set
+        string = orientation_set(string, self.values)
+        return string
+
+    def update_values(self, string):
+        updated_values = []
+
+        self.values = updated_values
+
+    def get_random_values(self):
+        
+        while True:
+            random_quat = [np.random.uniform(-1,1) for x in range(4)]
+            if np.linalg.norm(random_quat) < 1:
+                self.values = random_quat/np.linalg.norm(random_quat)               
+                break
+
+    def get_weighted_values(self, weights):
+        self.values = 0
+
+    def mutate_values(self, max_mutations=None, weights=None):
+
+        self.values = 0
+
+    def is_equal(self, other, threshold, chiral=True):
+        return False
