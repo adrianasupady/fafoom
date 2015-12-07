@@ -21,13 +21,15 @@ from copy import copy
 from random import choice
 from rdkit import Chem
 
-from utilities import ig, cleaner, get_vec, tor_rmsd, find_one_in_list
+from utilities import (ig, cleaner, get_vec, tor_rmsd, find_one_in_list,
+                       generate_random_quaternion, rotate_point)
 from measure import (
     dihedral_measure,
     dihedral_set,
     pyranosering_measure,
     pyranosering_set,
-    orientation_set
+    orientation_set,
+    orientation_measure,
 )
 
 from genetic_operations import mutation
@@ -438,24 +440,24 @@ class Orientation(DOF):
         return string
 
     def update_values(self, string):
-        updated_values = []
-
+        updated_values = orientation_measure(string)
         self.values = updated_values
 
     def get_random_values(self):
-        
-        while True:
-            random_quat = [np.random.uniform(-1,1) for x in range(4)]
-            if np.linalg.norm(random_quat) < 1:
-                self.values = random_quat/np.linalg.norm(random_quat)               
-                break
+        self.values = generate_random_quaternion()
 
     def get_weighted_values(self, weights):
-        self.values = 0
+        pass
 
     def mutate_values(self, max_mutations=None, weights=None):
+        pass
 
-        self.values = 0
-
-    def is_equal(self, other, threshold, chiral=True):
-        return False
+    def is_equal(self, other, threshold=math.sqrt(3)*0.4):
+        test_pos = [1.0, 1.0, 1.0]
+        rot1 = rotate_point(test_pos, self.values)
+        rot2 = rotate_point(test_pos, other.values)
+        diff = [rot2[2]-rot1[2], rot2[1]-rot1[1], rot2[0]-rot1[0]]
+        if np.linalg.norm(diff) > threshold:
+            return False
+        else:
+            return True
