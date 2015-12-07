@@ -461,6 +461,235 @@ def mirror_sdf(sdf_string):
     return mirror_sdf_string
 
 
-def center_mass(xyz_string):
-    position = [0,0,0]
-    return position
+def sdf2coord_list(sdf_string):
+    """Extract the information about the atoms(coordinates and symbol)
+    from the sdf string to a list"""
+
+    atoms = get_ind_from_sdfline(sdf_string.split('\n')[3])[0]
+    tmp_arr = sdf_string.splitlines()
+    coord_list = []
+    for i in range(atoms):
+        elem = tmp_arr[4+i].split()
+        coord_list.append([elem[3], float(elem[0]), float(elem[1]),
+                           float(elem[2])])
+    return coord_list
+
+
+def coord_list2sdf(coord_list, sdf_template_string):
+    """Recreate a sdf_string from a coordinate list using a template."""
+
+    atoms = len(coord_list)
+    sdf_form = sdf_template_string.splitlines()
+    c = []
+    cnt = 0
+    for i in range(len(sdf_form)):
+        if i > 3 and i < 4+atoms:
+            line = sdf_form[i].split()
+            line[0] = float(coord_list[i-4][1])
+            line[1] = float(coord_list[i-4][2])
+            line[2] = float(coord_list[i-4][3])
+            cnt += 1
+            c.append('%10.4f%10.4f%10.4f%s%-2s' % (line[0], line[1], line[2],
+                                                   str(' '), line[3]))
+            for j in xrange(4, len(line)):
+                if j == 4:
+                    c.append('%3d' % int(line[j]))
+                elif j == len(line)-1:
+                    c.append('%3d\n' % int(line[j]))
+                else:
+                    c.append('%3d' % int(line[j]))
+        else:
+            c.append(''.join(sdf_form[i])+'\n')
+
+    sdf_string = ''.join(c)
+    return sdf_string
+
+
+def center_mass(list_coord, ignoreH=False):
+    """Calculate the center of mass from 3D coordinates and the atomic masses
+
+    Args:
+        list_coord - list with lists of coordinates with atom symbols
+    Args(optional):
+        ignoreH - default=False, if set True - the hydrogens will be ignored
+    Returns:
+        numpy ndarray of 3D coordinates of the center of mass
+
+    """
+    coord = np.zeros([len(list_coord), 4])
+    i = 0
+    for elem in list_coord:
+        atom_type = elem[0]
+        coord[i][1:4] = [float(x) for x in elem[1:]]
+        if ignoreH and atom_type == "H":
+            coord[i][0] = 0
+        else:
+            coord[i][0] = get_atomic_weight(atom_type)
+        i += 1
+    center_of_mass = np.average(coord[:, 1:4], axis=0, weights=coord[:, 0])
+
+    return center_of_mass
+
+
+def translate(list_coord, t_vec):
+    """ Perform translation of the 3D coordinates with a vector."""
+
+    t_list_coord = [[x[0], float(x[1])+t_vec[0], float(x[2])+t_vec[1],
+                     float(x[3])+t_vec[2]] for x in list_coord]
+    return t_list_coord
+
+
+def rotate_point(point_coord, quaternion):
+    """ Rotate a 3D point with a quaternion."""
+    if np.linalg.norm(quaternion) != 1.0:
+        quaternion = quaternion/np.linalg.norm(quaternion)
+    s, x, y, z = quaternion
+    p1, p2, p3 = point_coord
+    p1_rot = p1*(s*s-z*z-y*y+x*x)+p2*(2*x*y-2*s*z)+p3*(2*x*z+2*y*s)
+    p2_rot = p1*(2*x*y+2*s*z)+p2*(s*s-z*z+y*y-x*x)+p3*(2*y*z-2*x*s)
+    p3_rot = p1*(2*x*z-2*s*y)+p2*(2*y*z+2*s*x)+p3*(s*s+z*z-y*y-x*x)
+
+    return [p1_rot, p2_rot, p3_rot]
+
+
+def sum_of_products(list_coord1, list_coord2):
+    """Build a matrix of sums of products of coordinates betweent two lists of
+    coordinates."""
+    sxx, syy, szz = 0, 0, 0
+    sxy, sxz, syz = 0, 0, 0
+    syx, szx, szy = 0, 0, 0
+    for i in range(len(list_coord1)):
+        sxx += list_coord1[i][1]*list_coord2[i][1]
+        syy += list_coord1[i][2]*list_coord2[i][2]
+        szz += list_coord1[i][3]*list_coord2[i][3]
+        syx += list_coord1[i][2]*list_coord2[i][1]
+        sxy += list_coord1[i][1]*list_coord2[i][2]
+        szx += list_coord1[i][3]*list_coord2[i][1]
+        sxz += list_coord1[i][1]*list_coord2[i][3]
+        szy += list_coord1[i][3]*list_coord2[i][2]
+        syz += list_coord1[i][2]*list_coord2[i][3]
+
+    return [[sxx, sxy, sxz], [syx, syy, syz], [szx, szy, szz]]
+
+
+def get_N_matrix(matrix):
+    """Build the N matrix from the sum of products matrix."""
+
+    bigN = np.zeros([4, 4])
+    bigN[0][0] = matrix[0][0]+matrix[1][1]+matrix[2][2]
+    bigN[1][1] = matrix[0][0]-matrix[1][1]-matrix[2][2]
+    bigN[2][2] = -matrix[0][0]+matrix[1][1]-matrix[2][2]
+    bigN[3][3] = -matrix[0][0]-matrix[1][1]+matrix[2][2]
+
+    bigN[0][1] = matrix[1][2]-matrix[2][1]
+    bigN[1][0] = bigN[0][1]
+    bigN[0][2] = matrix[2][0]-matrix[0][2]
+    bigN[2][0] = bigN[0][2]
+    bigN[0][3] = matrix[0][1]-matrix[1][0]
+    bigN[3][0] = bigN[0][3]
+
+    bigN[1][2] = matrix[0][1]+matrix[1][0]
+    bigN[2][1] = bigN[1][2]
+    bigN[1][3] = matrix[2][0]+matrix[0][2]
+    bigN[3][1] = bigN[1][3]
+    bigN[2][3] = matrix[1][2]+matrix[2][1]
+    bigN[3][2] = bigN[2][3]
+
+    return bigN
+
+
+def generate_random_quaternion():
+    """Generate a random and valid quaternion."""
+    while True:
+        random_quat = [np.random.uniform(-1, 1) for x in range(4)]
+        if np.linalg.norm(random_quat) < 1:
+            random_quat = random_quat/np.linalg.norm(random_quat)
+        break
+    return random_quat
+
+
+def get_quaternion(list_coord1, list_coord2):
+    """Obtain the quaternion between two lists of coordinates."""
+    matrix_of_sums = sum_of_products(list_coord1, list_coord2)
+    N_matrix = get_N_matrix(matrix_of_sums)
+    moments, vectors = np.linalg.eigh(N_matrix)
+    q = vectors[:, np.argmax(moments)]
+    q = q/np.linalg.norm(q)
+    return q
+
+
+def get_atomic_weight(atom_type):
+    """Get the atomic weight from the atom symbol."""
+    periodic_table = AllChem.GetPeriodicTable()
+    return periodic_table.GetAtomicWeight(atom_type)
+
+
+def get_inertia_tensor(list_coord):
+    """Obtain the inertia tensor from a list of coordinates."""
+    m_center = center_mass(list_coord)
+    inertia_tensor = np.zeros([3, 3])
+    ixx, iyy, izz = 0, 0, 0
+    ixy, ixz, iyz = 0, 0, 0
+    for item in list_coord:
+        atom_mass = get_atomic_weight(item[0])
+        ixx += atom_mass*((item[2]-m_center[1])**2+(item[3]-m_center[2])**2)
+        iyy += atom_mass*((item[1]-m_center[0])**2+(item[3]-m_center[2])**2)
+        izz += atom_mass*((item[1]-m_center[0])**2+(item[2]-m_center[1])**2)
+
+        ixy += atom_mass*((item[2]-m_center[1])*(item[1]-m_center[0]))
+        ixz += atom_mass*((item[3]-m_center[2])*(item[1]-m_center[0]))
+        iyz += atom_mass*((item[3]-m_center[2])*(item[2]-m_center[1]))
+    inertia_tensor = [[ixx, -ixy, -ixz], [-ixy, iyy, -iyz], [-ixz, -iyz, izz]]
+    return inertia_tensor
+
+
+def solve_inertia_tensor(inertia_tensor):
+    """Solve the tensor to obtain the principle moments and the axes"""
+    moments, tensor_axes = np.linalg.eig(inertia_tensor)
+    ind = np.argsort(moments)
+    return moments, tensor_axes[:, ind]
+
+
+def rotate_matrix(list_coord, rot):
+    """Rotate the coordinates with a rot_matrix"""
+    rot_list = []
+    for i in xrange(0, len(list_coord)):
+        t1 = list_coord[i][1]*rot[0][0]+list_coord[i][2]*rot[0][1]+list_coord[i][3]*rot[0][2]
+        t2 = list_coord[i][1]*rot[1][0]+list_coord[i][2]*rot[1][1]+list_coord[i][3]*rot[1][2]
+        t3 = list_coord[i][1]*rot[2][0]+list_coord[i][2]*rot[2][1]+list_coord[i][3]*rot[2][2]
+        rot_list.append([list_coord[i][0], t1, t2, t3])
+    return rot_list
+
+
+def rotate_quaternion(list_coord, quaternion):
+    """Rotate the coordinates with a quaternion"""
+    rot_coord = []
+    for item in list_coord:
+        rot_pos = []
+        rot_pos.append(item[0])
+        rot_pos.extend((rotate_point(item[1:], quaternion)))
+        rot_coord.append(rot_pos)
+    return rot_coord
+
+
+def make_canon_unique(list_coord):
+    """Bring the canonincal from to unique"""
+    unique_coord = []
+    x1, y1, z1 = list_coord[0][1:]
+    for item in list_coord:
+        unique_pos = []
+        unique_pos.append(item[0])
+        unique_pos.extend([np.sign(x1)*item[1], np.sign(y1)*item[2], np.sign(z1)*item[3]])
+        unique_coord.append(unique_pos)
+    return unique_coord
+
+
+def get_canonical(list_coord):
+    """Obtain the canonical form"""
+    tens = get_inertia_tensor(list_coord)
+    principle_moments, principle_axes = solve_inertia_tensor(tens)
+    axes_transp = principle_axes.T
+    canon_list = rotate_matrix(list_coord, axes_transp)
+    unique_canon_list = make_canon_unique(canon_list)
+
+    return unique_canon_list
