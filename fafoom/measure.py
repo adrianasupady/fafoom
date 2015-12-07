@@ -22,7 +22,9 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import rdMolTransforms
 
-from utilities import get_vec, tor_rmsd, xyz2sdf
+from utilities import (get_vec, tor_rmsd, xyz2sdf, sdf2coord_list,
+                       coord_list2sdf, get_quaternion, get_canonical,
+                       rotate_quaternion)
 
 
 def ig(x):
@@ -407,4 +409,21 @@ def pyranosering_measure(sdf_string, position, dict_of_options):
 
 
 def orientation_set(sdf_string, quaternion):
-    return sdf_string
+    """Set orientation from a quaternion. The orientation is always relative
+    to the canonical orientation"""
+    coord = sdf2coord_list(sdf_string)
+    canonical_coord = get_canonical(coord)
+    rot_arr = rotate_quaternion(canonical_coord, quaternion)
+    rot_sdf_string = coord_list2sdf(rot_arr, sdf_string)
+
+    return rot_sdf_string
+
+
+def orientation_measure(sdf_string):
+    """Measure the orientation. The orientation is always relative to the
+    canonical orientation.""" 
+    canonical_coord = get_canonical(sdf2coord_list(sdf_string))
+    probe_arr = sdf2coord_list(sdf_string)
+    quaternion = get_quaternion(canonical_coord, probe_arr)
+
+    return quaternion
