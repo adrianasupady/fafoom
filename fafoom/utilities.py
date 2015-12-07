@@ -505,7 +505,7 @@ def coord_list2sdf(coord_list, sdf_template_string):
     return sdf_string
 
 
-def center_mass(list_coord, ignoreH=False):
+def get_mass_center(list_coord, ignoreH=False):
     """Calculate the center of mass from 3D coordinates and the atomic masses
 
     Args:
@@ -532,7 +532,7 @@ def center_mass(list_coord, ignoreH=False):
 
 
 def translate(list_coord, t_vec):
-    """ Perform translation of the 3D coordinates with a vector."""
+    """Perform translation of the 3D coordinates with a vector."""
 
     t_list_coord = [[x[0], float(x[1])+t_vec[0], float(x[2])+t_vec[1],
                      float(x[3])+t_vec[2]] for x in list_coord]
@@ -540,7 +540,7 @@ def translate(list_coord, t_vec):
 
 
 def rotate_point(point_coord, quaternion):
-    """ Rotate a 3D point with a quaternion."""
+    """Rotate a 3D point with a quaternion."""
     if np.linalg.norm(quaternion) != 1.0:
         quaternion = quaternion/np.linalg.norm(quaternion)
     s, x, y, z = quaternion
@@ -604,7 +604,7 @@ def generate_random_quaternion():
         random_quat = [np.random.uniform(-1, 1) for x in range(4)]
         if np.linalg.norm(random_quat) < 1:
             random_quat = random_quat/np.linalg.norm(random_quat)
-        break
+            break
     return random_quat
 
 
@@ -626,7 +626,7 @@ def get_atomic_weight(atom_type):
 
 def get_inertia_tensor(list_coord):
     """Obtain the inertia tensor from a list of coordinates."""
-    m_center = center_mass(list_coord)
+    m_center = get_mass_center(list_coord)
     inertia_tensor = np.zeros([3, 3])
     ixx, iyy, izz = 0, 0, 0
     ixy, ixz, iyz = 0, 0, 0
