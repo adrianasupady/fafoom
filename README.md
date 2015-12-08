@@ -4,7 +4,9 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 
 ## News
 
-* the preprint "First-principles molecular structure search with a genetic algorithm" is available from http://arxiv.org/abs/1505.02521
+* the paper "First-principles molecular structure search with a genetic algorithm" is now published in Journal of Chemical Information and Modeling; DOI: 10.1021/acs.jcim.5b00243
+
+* a new branch targeting the implementation of a further degree of freedom ('orientation') has been created
 
 ## Requirements
 
