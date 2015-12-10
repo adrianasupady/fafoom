@@ -304,6 +304,27 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
     return check
 
 
+def check_geo_2_sdf(sdf_string1, sdf_string2, cutoff1, cutoff2):
+    """Check if clashes occur if two geometries are placed together"""
+    check = True
+    if check_geo_sdf(sdf_string1, cutoff1, cutoff2) is False:
+        check = False
+        return check
+    if check_geo_sdf(sdf_string2, cutoff1, cutoff2) is False:
+        check = False
+        return check
+    coord_list_1 = sdf2coord_list(sdf_string1)
+    coord_list_2 = sdf2coord_list(sdf_string2)
+    for elem1 in coord_list_1:
+        for elem2 in coord_list_2:
+            coord1 = [float(x) for x in elem1[1:]]
+            coord2 = [float(x) for x in elem2[1:]]
+            if distance(coord1, coord2) < cutoff1:
+                check = False
+                return check
+    return check
+
+
 def get_ind_from_sdfline(sdf_line):
     """Extract the indicies from the sdf string (for molecules with more than
     99 atoms)"""
