@@ -256,6 +256,11 @@ def find_closest(numb, list_of_values, periodic=False):
     return closest
 
 
+def distance(x, y):
+    """"Calculate distance between two points in 3D."""
+    return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2)
+
+
 def check_geo_sdf(sdf_string, cutoff1, cutoff2):
     """Check geometry from a sdf_string for clashes.
 
@@ -271,47 +276,32 @@ def check_geo_sdf(sdf_string, cutoff1, cutoff2):
 
     if cutoff1 <= 0 or cutoff2 <= 0:
         raise ValueError("Distance cutoff needs to be a positive float")
-
-    def distance(x, y):
-        """"Calculate distance between two points in 3D."""
-        return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2)
-
     atoms, bonds = get_ind_from_sdfline(sdf_string.split('\n')[3])
     coordinates = np.zeros((atoms, 3))
-    bonds_pairs = np.zeros((bonds, 2))
+    bonds_list = []
     for i in range(4, atoms+4):
-        coordinates[i-4][0] = sdf_string.split('\n')[i].split()[0]
-        coordinates[i-4][1] = sdf_string.split('\n')[i].split()[1]
-        coordinates[i-4][2] = sdf_string.split('\n')[i].split()[2]
+        coordinates[i-4][0:3] = sdf_string.split('\n')[i].split()[0:3]
     for i in range(atoms+4, atoms+bonds+4):
-        i1, i2 = get_ind_from_sdfline(sdf_string.split('\n')[i])
-        bonds_pairs[i-atoms-4][0] = i1
-        bonds_pairs[i-atoms-4][1] = i2
+        e1, e2 = get_ind_from_sdfline(sdf_string.split('\n')[i])
+        bonds_list.append([e1, e2])
     dist = np.zeros((atoms, atoms))
     for x in range(atoms):
-        for y in xrange(x, atoms):
-            a = np.array(coordinates[int(x)])
-            b = np.array(coordinates[int(y)])
-            dist[x][y] = distance(a, b)
+        for y in range(x, atoms):
+            dist[x][y] = distance(np.array(coordinates[x]),
+                                  np.array(coordinates[y]))
             dist[y][x] = dist[x][y]
-    list_of_bonds = []
-    for i in range(bonds):
-        list_of_bonds.append([bonds_pairs[i][0], bonds_pairs[i][1]])
-
-    def check_distance():
-        for x in range(atoms):
-            for y in xrange(x+1, atoms):
-                if [x+1, y+1] not in list_of_bonds and \
-                   [y+1, x+1] not in list_of_bonds and dist[x][y] < cutoff1:
+    check = True
+    for x in range(atoms):
+        for y in range(x+1, atoms):
+            if [x+1, y+1] not in bonds_list and [y+1, x+1] not in bonds_list:
+                if dist[x][y] < cutoff1:
                     check = False
                     return check
-                elif ([x+1, y+1] in list_of_bonds and dist[x][y] > cutoff2) or\
-                     ([y+1, x+1] in list_of_bonds and dist[x][y] > cutoff2):
+            else:
+                if dist[x][y] > cutoff2:
                     check = False
                     return check
-        return True
-
-    return check_distance()
+    return check
 
 
 def get_ind_from_sdfline(sdf_line):
