@@ -16,6 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 
 """Wrapper for FHI-aims."""
+from __future__ import division
 import shutil
 import os
 import subprocess

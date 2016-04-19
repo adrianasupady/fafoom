@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 ''' Handle the degrees of freedom.'''
+from __future__ import division
 import math
 from copy import copy
 from random import choice

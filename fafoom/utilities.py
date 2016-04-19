@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 ''' Collection of diverse help/convert functions '''
+from __future__ import division
 import os
 import numpy as np
 import math

@@ -16,6 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 
 '''Wrapper for RDKit force-field routines'''
+from __future__ import division
 import os
 from rdkit import Chem
 from rdkit.Chem import AllChem

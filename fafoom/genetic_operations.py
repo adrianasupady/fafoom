@@ -16,7 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 
 """Collection of genetic operations."""
-
+from __future__ import division
 import numpy as np
 import random
 

@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 """Measure and set dihedral angles and rings."""
-
+from __future__ import division
 from operator import itemgetter
 import numpy as np
 

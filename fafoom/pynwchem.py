@@ -16,7 +16,7 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 
 '''Wrapper for NWCHEM'''
-
+from __future__ import division
 import glob
 import os
 import subprocess
