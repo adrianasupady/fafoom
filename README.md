@@ -1,4 +1,6 @@
-﻿# Fafoom - Flexible algorithm for optimization of molecules 
+# Fafoom - Flexible algorithm for optimization of molecules 
+:warning: **Fafoom is no longer maintained and will not be updated to Python 3** :warning:
+
 
 Fafoom is a tool for sampling the conformational space of organic molecules. Fafoom is intended to work with FHI-aims (Fritz Haber Institute ab initio molecular simulations package).
 
@@ -11,7 +13,7 @@ Fafoom is a tool for sampling the conformational space of organic molecules. Faf
 ## Requirements
 
 * functionality of the tool:
-  * Python (used for testing: 2.7.6)
+  * Python (used for testing: 2.7.6) - Python3 is not supported!
   * Numpy (used for testing: 1.8.2)
   * RDKit (used for testing: Release_2015_03_1)
 
